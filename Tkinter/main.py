@@ -6,6 +6,8 @@ import os
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from scipy import stats
 
+from modules.species_frecuency import SpeciesFrecuencyTable
+
 class ExcelAnalyzerApp(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -28,24 +30,15 @@ class ExcelAnalyzerApp(tk.Tk):
         self.scroll_canvas.configure(yscrollcommand=scrollbar.set)
 
         self.content_frame = ttk.Frame(self.scroll_canvas)
+        # Aquí van los widgets
+        ttk.Button(self.content_frame, text="Cargar archivo Excel", command=self.load_excel).pack(pady=(0, 10))
+        self.species_table = SpeciesFrecuencyTable(self.content_frame)
         self.scroll_canvas.create_window((0, 0), window=self.content_frame, anchor="nw")
 
         self.content_frame.bind(
             "<Configure>",
             lambda e: self.scroll_canvas.configure(scrollregion=self.scroll_canvas.bbox("all"))
         )
-
-        # Aquí van los widgets
-        ttk.Button(self.content_frame, text="Cargar archivo Excel", command=self.load_excel).pack(pady=(0, 10))
-
-        self.tree = ttk.Treeview(self.content_frame, columns=("Especie", "Frecuencia"), show="headings")
-        self.tree.heading("Especie", text="Especie")
-        self.tree.heading("Frecuencia", text="Frecuencia")
-        self.tree.pack(expand=True, fill="both")
-
-        frame_botones = ttk.Frame(self.content_frame)
-        frame_botones.pack(pady=10)
-        ttk.Button(frame_botones, text="Guardar tabla como Excel", command=self.save_excel).pack(side="left", padx=5)
 
         self.frame_grafico = ttk.Frame(self.content_frame)
         self.frame_grafico.pack(fill="both", expand=True)
@@ -77,15 +70,15 @@ class ExcelAnalyzerApp(tk.Tk):
 
                 self.df_original = df.copy()
 
+                # Calculate frequency
                 frecuencia = df["Especie"].value_counts().reset_index()
                 frecuencia.columns = ["Especie", "Frecuencia"]
                 self.df_resultado = frecuencia
 
-                for i in self.tree.get_children():
-                    self.tree.delete(i)
-                for _, row in frecuencia.iterrows():
-                    self.tree.insert("", "end", values=(row["Especie"], row["Frecuencia"]))
+                # Instead of directly modifying self.tree
+                self.species_table.populate(frecuencia)
 
+                # Other actions
                 self.generar_estadisticas(df)
                 self.mostrar_grafico()
                 self.mostrar_tendencia_mensual()
