@@ -3,6 +3,7 @@ import pandas as pd
 from tkinter import filedialog, messagebox
 
 from modules.generate_stats import generar_estadisticas
+from modules.show_graph import mostrar_grafico
 
 def load_excel(app, filepath=None):
   if not filepath:
@@ -29,7 +30,7 @@ def load_excel(app, filepath=None):
       # Update UI
       app.species_table.populate(frecuencia)
       generar_estadisticas(app, df)
-      app.mostrar_grafico()
+      mostrar_grafico(app)
       app.mostrar_tendencia_mensual()
 
     except Exception as e:

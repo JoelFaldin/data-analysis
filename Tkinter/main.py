@@ -54,44 +54,6 @@ class ExcelAnalyzerApp(tk.Tk):
         self.frame_tendencia = ttk.Frame(self.content_frame)
         self.frame_tendencia.pack(fill="both", expand=True, pady=(20, 0))
 
-    def mostrar_grafico(self):
-        if self.df_resultado is None:
-            messagebox.showwarning("Aviso", "Primero debes cargar un archivo.")
-            return
-
-        df = self.df_resultado
-        total = df["Frecuencia"].sum()
-        porcentajes = (df["Frecuencia"] / total) * 100
-
-        if self.canvas:
-            self.canvas.get_tk_widget().destroy()
-
-        fig, ax = plt.subplots(figsize=(6, 4))
-        bars = ax.bar(df["Especie"], df["Frecuencia"], color="skyblue", edgecolor="black")
-
-        ax.set_title("Frecuencia de pesca por especie", fontsize=14)
-        ax.set_xlabel("Especie", fontsize=12)
-        ax.set_ylabel("Frecuencia", fontsize=12)
-
-        for bar, porcentaje in zip(bars, porcentajes):
-            height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width() / 2, height + 0.5,
-                    f"{porcentaje:.1f}%", ha='center', va='bottom', fontsize=10)
-
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-
-        self.canvas = FigureCanvasTkAgg(fig, master=self.frame_grafico)
-        self.canvas.draw()
-        self.canvas.get_tk_widget().pack(fill="both", expand=True)
-
-        for i in self.tree_stats.get_children():
-            self.tree_stats.delete(i)
-        for row in self.df_estadisticas:
-            self.tree_stats.insert('', 'end', values=row)
-
-        self.tree_stats.pack(fill='x', padx=10, pady=10)
-
     def exportar_reporte(self):
         if self.df_resultado is None or self.df_estadisticas is None:
             messagebox.showwarning("Aviso", "Primero debes cargar un archivo.")
