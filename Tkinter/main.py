@@ -8,6 +8,7 @@ from scipy import stats
 
 from modules.species_frecuency import SpeciesFrecuencyTable
 from modules.excel_loader import load_excel
+from modules.export_report import exportar_reporte
 
 class ExcelAnalyzerApp(tk.Tk):
     def __init__(self):
@@ -49,48 +50,10 @@ class ExcelAnalyzerApp(tk.Tk):
             self.tree_stats.heading(col, text=col)
             self.tree_stats.column(col, width=120, anchor='center')
 
-        ttk.Button(self.content_frame, text="Exportar Reporte Completo", command=self.exportar_reporte).pack(pady=(10, 0))
+        ttk.Button(self.content_frame, text="Exportar Reporte Completo", command=lambda: exportar_reporte(self)).pack(pady=(10, 0))
 
         self.frame_tendencia = ttk.Frame(self.content_frame)
         self.frame_tendencia.pack(fill="both", expand=True, pady=(20, 0))
-
-    def exportar_reporte(self):
-        if self.df_resultado is None or self.df_estadisticas is None:
-            messagebox.showwarning("Aviso", "Primero debes cargar un archivo.")
-            return
-
-        filepath = filedialog.asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivo Excel", "*.xlsx")],
-            title="Guardar Reporte"
-        )
-
-        if not filepath:
-            return
-
-        try:
-            with pd.ExcelWriter(filepath, engine='xlsxwriter') as writer:
-                self.df_resultado.to_excel(writer, sheet_name="Frecuencia", index=False)
-
-                df_stats = pd.DataFrame(self.df_estadisticas, columns=['Proyecto', 'Media', 'Mediana', 'Moda', 'Desviación', 'Varianza'])
-                df_stats.to_excel(writer, sheet_name="Estadísticas", index=False)
-
-                workbook = writer.book
-                worksheet = workbook.add_worksheet("Gráfico")
-                writer.sheets["Gráfico"] = worksheet
-
-                img_path = "grafico_temp.png"
-                fig = self.canvas.figure
-                fig.savefig(img_path)
-                worksheet.insert_image('B2', img_path)
-
-            if os.path.exists("grafico_temp.png"):
-                os.remove("grafico_temp.png")
-
-            messagebox.showinfo("Éxito", "Reporte exportado correctamente.")
-
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo exportar el reporte:\n{e}")
 
     def mostrar_tendencia_mensual(self):
         if self.df_original is None:
