@@ -7,6 +7,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from scipy import stats
 
 from modules.species_frecuency import SpeciesFrecuencyTable
+from modules.excel_loader import load_excel
 
 class ExcelAnalyzerApp(tk.Tk):
     def __init__(self):
@@ -31,7 +32,7 @@ class ExcelAnalyzerApp(tk.Tk):
 
         self.content_frame = ttk.Frame(self.scroll_canvas)
         # Aquí van los widgets
-        ttk.Button(self.content_frame, text="Cargar archivo Excel", command=self.load_excel).pack(pady=(0, 10))
+        ttk.Button(self.content_frame, text="Cargar archivo Excel", command=lambda: load_excel(self)).pack(pady=(0, 10))
         self.species_table = SpeciesFrecuencyTable(self.content_frame)
         self.scroll_canvas.create_window((0, 0), window=self.content_frame, anchor="nw")
 
@@ -52,39 +53,6 @@ class ExcelAnalyzerApp(tk.Tk):
 
         self.frame_tendencia = ttk.Frame(self.content_frame)
         self.frame_tendencia.pack(fill="both", expand=True, pady=(20, 0))
-
-    def load_excel(self, filepath=None):
-        if not filepath:
-            filepath = filedialog.askopenfilename(
-                title="Selecciona un archivo Excel o CSV",
-                filetypes=[("Archivos Excel y CSV", "*.xlsx *.xls *.csv")]
-            )
-
-        if filepath:
-            try:
-                ext = os.path.splitext(filepath)[1].lower()
-                df = pd.read_csv(filepath) if ext == ".csv" else pd.read_excel(filepath)
-
-                if "Especie" not in df.columns or "Fecha" not in df.columns:
-                    raise ValueError("El archivo debe contener columnas 'Fecha' y 'Especie'.")
-
-                self.df_original = df.copy()
-
-                # Calculate frequency
-                frecuencia = df["Especie"].value_counts().reset_index()
-                frecuencia.columns = ["Especie", "Frecuencia"]
-                self.df_resultado = frecuencia
-
-                # Instead of directly modifying self.tree
-                self.species_table.populate(frecuencia)
-
-                # Other actions
-                self.generar_estadisticas(df)
-                self.mostrar_grafico()
-                self.mostrar_tendencia_mensual()
-
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo leer el archivo:\n{e}")
 
     def generar_estadisticas(self, df):
         try:
