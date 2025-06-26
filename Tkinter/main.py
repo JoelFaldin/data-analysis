@@ -33,7 +33,7 @@ class ExcelAnalyzerApp(tk.Tk):
         self.content_frame = ttk.Frame(self.scroll_canvas)
         # Aquí van los widgets
         ttk.Button(self.content_frame, text="Cargar archivo Excel", command=lambda: load_excel(self)).pack(pady=(0, 10))
-        self.species_table = SpeciesFrecuencyTable(self.content_frame)
+        self.species_table = SpeciesFrecuencyTable(self, self.content_frame)
         self.scroll_canvas.create_window((0, 0), window=self.content_frame, anchor="nw")
 
         self.content_frame.bind(
@@ -53,24 +53,6 @@ class ExcelAnalyzerApp(tk.Tk):
 
         self.frame_tendencia = ttk.Frame(self.content_frame)
         self.frame_tendencia.pack(fill="both", expand=True, pady=(20, 0))
-
-    def save_excel(self):
-        if self.df_resultado is None:
-            messagebox.showwarning("Aviso", "Primero debes cargar un archivo.")
-            return
-
-        filepath = filedialog.asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivo Excel", "*.xlsx")],
-            title="Guardar como"
-        )
-
-        if filepath:
-            try:
-                self.df_resultado.to_excel(filepath, index=False)
-                messagebox.showinfo("Éxito", "Archivo guardado correctamente.")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
 
     def mostrar_grafico(self):
         if self.df_resultado is None:
