@@ -2,6 +2,8 @@ import os
 import pandas as pd
 from tkinter import filedialog, messagebox
 
+from modules.generate_stats import generar_estadisticas
+
 def load_excel(app, filepath=None):
   if not filepath:
     filepath = filedialog.askopenfilename(
@@ -26,7 +28,7 @@ def load_excel(app, filepath=None):
 
       # Update UI
       app.species_table.populate(frecuencia)
-      app.generar_estadisticas(df)
+      generar_estadisticas(app, df)
       app.mostrar_grafico()
       app.mostrar_tendencia_mensual()
 
