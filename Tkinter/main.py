@@ -1,10 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
-import pandas as pd
-import matplotlib.pyplot as plt
-import os
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from scipy import stats
+from tkinter import ttk
 
 from modules.species_frecuency import SpeciesFrecuencyTable
 from modules.excel_loader import load_excel
@@ -54,53 +49,6 @@ class ExcelAnalyzerApp(tk.Tk):
 
         self.frame_tendencia = ttk.Frame(self.content_frame)
         self.frame_tendencia.pack(fill="both", expand=True, pady=(20, 0))
-
-    def mostrar_tendencia_mensual(self):
-        if self.df_original is None:
-            return
-
-        df = self.df_original.copy()
-
-        if "Fecha" not in df.columns:
-            return
-
-        try:
-            df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
-            df = df.dropna(subset=["Fecha"])
-        except Exception:
-            return
-
-        df_2024 = df[df["Fecha"].dt.year == 2024].copy()
-        if df_2024.empty:
-            return
-
-        df_2024["Mes"] = df_2024["Fecha"].dt.month
-        df_grouped = df_2024.groupby(["Mes", "Especie"]).size().reset_index(name="Frecuencia")
-        if df_grouped.empty:
-            return
-
-        for widget in self.frame_tendencia.winfo_children():
-            widget.destroy()
-
-        fig, ax = plt.subplots(figsize=(8, 4))
-
-        for especie in df_grouped["Especie"].unique():
-            datos = df_grouped[df_grouped["Especie"] == especie]
-            ax.plot(datos["Mes"], datos["Frecuencia"], marker='o', label=especie)
-
-        ax.set_title("Tendencia Mensual de Pesca - Año 2024", fontsize=14)
-        ax.set_xlabel("Mes")
-        ax.set_ylabel("Frecuencia")
-        ax.set_xticks(range(1, 13))
-        ax.set_xticklabels(['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-                            'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'])
-        ax.legend()
-        ax.grid(True)
-        plt.tight_layout()
-
-        canvas_tendencia = FigureCanvasTkAgg(fig, master=self.frame_tendencia)
-        canvas_tendencia.draw()
-        canvas_tendencia.get_tk_widget().pack(fill="both", expand=True)
 
 if __name__ == "__main__":
     app = ExcelAnalyzerApp()

@@ -4,6 +4,7 @@ from tkinter import filedialog, messagebox
 
 from modules.generate_stats import generar_estadisticas
 from modules.show_graph import mostrar_grafico
+from modules.show_monthly_tendency import mostrar_tendencia_mensual
 
 def load_excel(app, filepath=None):
   if not filepath:
@@ -31,7 +32,7 @@ def load_excel(app, filepath=None):
       app.species_table.populate(frecuencia)
       generar_estadisticas(app, df)
       mostrar_grafico(app)
-      app.mostrar_tendencia_mensual()
+      mostrar_tendencia_mensual(app)
 
     except Exception as e:
         messagebox.showerror("Error", f"No se pudo leer el archivo:\n{e}")
