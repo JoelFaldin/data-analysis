@@ -2,6 +2,7 @@ library(shiny)
 library(dplyr)
 
 source("modules/freq_table.R")
+source("modules/histogram_graph.R")
 
 ui <- fluidPage(
   titlePanel(
@@ -32,6 +33,10 @@ ui <- fluidPage(
       conditionalPanel(
         condition = "input.view_choice == 'frequency'",
         freqTableUI("freq")
+      ),
+      conditionalPanel(
+        condition = "input.view_choice == 'histogram'", 
+        histogramUI("hist")
       )
     )
   )
@@ -44,6 +49,7 @@ server <- function(input, output) {
   })
   
   freqTableServer("freq", data)
+  histogramServer("hist", data)
 }
 
 shinyApp(ui, server)
